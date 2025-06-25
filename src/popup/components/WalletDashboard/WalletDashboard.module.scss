@@ -1,0 +1,708 @@
+.walletDashboard {
+  padding: 24px;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+}
+
+.loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 200px;
+  color: var(--text-secondary);
+}
+
+.headerActions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.settingsBtn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  background: none;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  cursor: pointer;
+  font-size: 14px;
+  transition: all 0.2s ease;
+
+  &:hover {
+    border-color: var(--primary-color);
+    background-color: var(--surface);
+  }
+}
+
+.connectedDAppsButton {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  padding: 6px 8px;
+  background: none;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  cursor: pointer;
+  font-size: 12px;
+  transition: all 0.2s ease;
+  color: var(--text-secondary);
+
+  &:hover {
+    border-color: var(--primary-color);
+    background-color: var(--surface);
+  }
+}
+
+.connectionIcon {
+  font-size: 14px;
+}
+
+.connectionCount {
+  font-size: 11px;
+  font-weight: 600;
+  min-width: 14px;
+  text-align: center;
+}
+
+.addWalletBtn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  background: none;
+  border: 1px solid var(--primary-color);
+  border-radius: var(--radius);
+  cursor: pointer;
+  font-size: 18px;
+  font-weight: bold;
+  color: var(--primary-color);
+  transition: all 0.2s ease;
+
+  &:hover {
+    background-color: var(--primary-color);
+    color: white;
+  }
+}
+
+.walletSelector {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  background: none;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  cursor: pointer;
+  transition: all 0.2s ease;
+
+  &:hover {
+    border-color: var(--primary-color);
+  }
+}
+
+.walletName {
+  font-weight: 500;
+  font-size: 13px;
+}
+
+.dropdownArrow {
+  font-size: 10px;
+  color: var(--text-muted);
+}
+
+.walletListDropdown {
+  position: absolute;
+  top: 76px;
+  right: 24px;
+  background: var(--background);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12);
+  min-width: 320px;
+  max-width: 400px;
+  z-index: 1000;
+  overflow: hidden;
+  max-height: 400px;
+  overflow-y: auto;
+}
+
+.walletItem {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--border);
+  transition: background-color 0.2s;
+  position: relative;
+
+  &:hover {
+    background-color: var(--surface);
+  }
+
+  &.active {
+    background-color: var(--primary-color);
+    color: white;
+
+    .walletAddress {
+      color: rgba(255, 255, 255, 0.8);
+    }
+
+    .balanceValue {
+      color: white;
+    }
+  }
+
+  &:last-child {
+    border-bottom: none;
+  }
+}
+
+.walletInfo {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex: 1;
+  border: none;
+  background: none;
+  text-align: left;
+  cursor: pointer;
+  color: inherit;
+  padding: 0;
+  width: 100%;
+  min-width: 0;
+}
+
+.walletDetails {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  flex: 1;
+  min-width: 0;
+}
+
+.walletBalance {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  margin-left: 12px;
+  flex-shrink: 0;
+}
+
+.balanceValue {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-primary);
+  white-space: nowrap;
+}
+
+.loadingBalance {
+  font-size: 12px;
+  color: var(--text-muted);
+}
+
+.walletItemName {
+  font-weight: 500;
+  font-size: 13px;
+  margin-bottom: 2px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 180px;
+}
+
+.walletAddress {
+  font-size: 11px;
+  color: var(--text-muted);
+  font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 180px;
+}
+
+.balanceSection {
+  background-color: var(--surface);
+  border-radius: var(--radius-lg);
+  padding: 24px;
+  margin-bottom: 32px;
+  text-align: center;
+}
+
+.balanceContainer {
+  margin-bottom: 24px;
+}
+
+.balanceLabel {
+  font-size: 13px;
+  color: var(--text-secondary);
+  margin-bottom: 8px;
+}
+
+.balanceAmount {
+  display: flex;
+  align-items: baseline;
+  justify-content: center;
+  gap: 8px;
+}
+
+.amount {
+  font-size: 32px;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.currency {
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--text-secondary);
+}
+
+.loadingText {
+  font-size: 16px;
+  color: var(--text-muted);
+}
+
+.balanceEur {
+  font-size: 16px;
+  font-weight: 500;
+  color: var(--text-secondary);
+  margin-top: 8px;
+}
+
+.addressContainer {
+  .addressLabel {
+    font-size: 11px;
+    color: var(--text-muted);
+    margin-bottom: 6px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+}
+
+.addressButton {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 8px 16px;
+  background-color: white;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  cursor: pointer;
+  transition: all 0.2s ease;
+
+  &:hover {
+    border-color: var(--primary-color);
+    background-color: var(--primary-color);
+    color: white;
+  }
+}
+
+.address {
+  font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+  font-size: 12px;
+}
+
+.copyIcon {
+  font-size: 12px;
+}
+
+.actions {
+  display: flex;
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  border-radius: var(--radius);
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  outline: none;
+  text-decoration: none;
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+}
+
+.btnPrimary {
+  flex: 3;
+  padding: 16px 32px;
+  font-size: 16px;
+  background-color: var(--primary-color);
+  color: white;
+
+  &:hover:not(:disabled) {
+    background-color: var(--primary-hover);
+  }
+}
+
+.btnSecondary {
+  flex: 1;
+  padding: 12px 16px;
+  font-size: 13px;
+  background-color: var(--surface);
+  color: var(--text-primary);
+  border: 1px solid var(--border);
+
+  &:hover:not(:disabled) {
+    background-color: var(--secondary-color);
+    color: white;
+  }
+}
+
+.btnTertiary {
+  background-color: transparent;
+  border: 1px solid #6b7280;
+  color: #6b7280;
+
+  &:hover:not(:disabled) {
+    background-color: #6b7280;
+    color: white;
+  }
+}
+
+.walletMenu {
+  position: relative;
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+}
+
+.menuToggle {
+  padding: 4px 8px;
+  border: none;
+  background: none;
+  cursor: pointer;
+  font-size: 16px;
+  color: var(--text-secondary);
+  border-radius: 4px;
+  transition: all 0.2s;
+
+  &:hover {
+    background-color: var(--surface);
+    color: var(--text-primary);
+  }
+}
+
+.menuDropdown {
+  position: absolute;
+  top: 100%;
+  right: 0;
+  background-color: var(--background);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+  z-index: 1001;
+  min-width: 150px;
+  overflow: hidden;
+}
+
+.menuItem {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  padding: 10px 12px;
+  border: none;
+  background: none;
+  text-align: left;
+  cursor: pointer;
+  font-size: 14px;
+  color: var(--text-primary);
+  transition: background-color 0.2s;
+
+  &:hover {
+    background-color: var(--surface);
+  }
+
+  &.danger {
+    color: #dc3545;
+
+    &:hover {
+      background-color: rgba(220, 53, 69, 0.1);
+    }
+  }
+
+  &:first-child {
+    border-top-left-radius: var(--radius);
+    border-top-right-radius: var(--radius);
+  }
+
+  &:last-child {
+    border-bottom-left-radius: var(--radius);
+    border-bottom-right-radius: var(--radius);
+  }
+}
+
+.renameInput {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+}
+
+.renameField {
+  flex: 1;
+  padding: 6px 8px;
+  border: 1px solid var(--primary-color);
+  border-radius: 4px;
+  font-size: 14px;
+  outline: none;
+}
+
+.renameActions {
+  display: flex;
+  gap: 4px;
+}
+
+.confirmBtn,
+.cancelBtn {
+  padding: 4px 8px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 12px;
+  font-weight: bold;
+}
+
+.confirmBtn {
+  background-color: #10b981;
+  color: white;
+
+  &:hover {
+    background-color: #059669;
+  }
+}
+
+.cancelBtn {
+  background-color: #dc3545;
+  color: white;
+
+  &:hover {
+    background-color: #c82333;
+  }
+}
+
+.dropdownFooter {
+  border-top: 1px solid var(--border);
+  padding: 12px;
+  background-color: var(--surface);
+}
+
+.addWalletButton {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  padding: 12px 16px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background-color: var(--background);
+  color: var(--text-primary);
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 500;
+  transition: all 0.2s;
+
+  &:hover {
+    background-color: var(--primary-color);
+    color: white;
+    border-color: var(--primary-color);
+  }
+}
+
+.addIcon {
+  font-size: 16px;
+  font-weight: bold;
+}
+
+.networkInfo {
+  margin-top: auto;
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.networkButton {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  background-color: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  cursor: pointer;
+  transition: all 0.2s;
+  font-size: 12px;
+  color: var(--text-secondary);
+  flex: 1;
+
+  &:hover {
+    border-color: var(--primary-color);
+    background-color: var(--primary-color);
+    color: white;
+
+    .networkIndicator {
+      border-color: white;
+    }
+  }
+}
+
+.blockInfo {
+  display: flex;
+  align-items: center;
+  font-size: 12px;
+  color: var(--text-secondary);
+  min-width: 70px;
+  justify-content: flex-end;
+}
+
+.blockLink {
+  color: var(--primary-color);
+  text-decoration: none;
+  font-weight: 500;
+  transition: all 0.2s ease;
+
+  &:hover {
+    color: var(--primary-dark);
+    text-decoration: underline;
+  }
+}
+
+.blockLoading {
+  color: var(--text-secondary);
+  animation: spin 1s linear infinite;
+}
+
+.blockError {
+  color: var(--text-disabled);
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.networkIndicator {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background-color: #10b981;
+
+  &.testnet {
+    background-color: #f59e0b;
+  }
+}
+
+.networkName {
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.networkDropdown {
+  position: absolute;
+  bottom: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  background: var(--background);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12);
+  min-width: 200px;
+  z-index: 1000;
+  overflow: hidden;
+  margin-bottom: 8px;
+}
+
+.networkItem {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  padding: 12px 16px;
+  border: none;
+  background: none;
+  text-align: left;
+  cursor: pointer;
+  font-size: 14px;
+  color: var(--text-primary);
+  transition: background-color 0.2s;
+
+  &:hover {
+    background-color: var(--surface);
+  }
+
+  &.active {
+    background-color: var(--primary-color);
+    color: white;
+  }
+}
+
+.networkItemName {
+  flex: 1;
+  font-weight: 500;
+}
+
+.customBadge {
+  font-size: 10px;
+  padding: 2px 6px;
+  background-color: var(--warning);
+  color: white;
+  border-radius: 10px;
+  font-weight: 500;
+}
+
+.networkDropdownSeparator {
+  height: 1px;
+  background-color: var(--border);
+  margin: 8px 0;
+}
+
+.settingsLink {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  padding: 12px 16px;
+  border: none;
+  background: none;
+  text-align: left;
+  cursor: pointer;
+  font-size: 14px;
+  color: var(--text-secondary);
+  transition: background-color 0.2s;
+
+  &:hover {
+    background-color: var(--surface);
+    color: var(--primary-color);
+  }
+}
+
+.networkStatus {
+  font-size: 11px;
+  color: var(--text-muted);
+  background-color: var(--surface);
+  padding: 6px 12px;
+  border-radius: 12px;
+  border: 1px solid var(--border);
+}

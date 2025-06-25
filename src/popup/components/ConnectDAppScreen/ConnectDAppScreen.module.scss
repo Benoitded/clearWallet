@@ -1,0 +1,376 @@
+.connectDAppScreen {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  background: #111827;
+  color: #ffffff;
+}
+
+.content {
+  flex: 1;
+  padding: 0 20px 20px;
+  overflow-y: auto;
+}
+
+.siteInfo {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 20px 0;
+  border-bottom: 1px solid #374151;
+  margin-bottom: 24px;
+}
+
+.siteIcon {
+  width: 48px;
+  height: 48px;
+  border-radius: 12px;
+  overflow: hidden;
+  background: #374151;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.iconImage {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.defaultIcon {
+  font-size: 24px;
+}
+
+.siteDetails {
+  flex: 1;
+}
+
+.siteName {
+  font-size: 18px;
+  font-weight: 600;
+  margin: 0 0 4px 0;
+  color: #ffffff;
+}
+
+.siteUrl {
+  font-size: 14px;
+  color: #9ca3af;
+  margin: 0;
+}
+
+.requestInfo {
+  background: #1f2937;
+  border-radius: 12px;
+  padding: 20px;
+  margin-bottom: 24px;
+  text-align: center;
+}
+
+.requestIcon {
+  font-size: 24px;
+  margin-bottom: 12px;
+}
+
+.requestTitle {
+  font-size: 16px;
+  font-weight: 600;
+  margin: 0 0 8px 0;
+  color: #ffffff;
+}
+
+.requestDescription {
+  font-size: 14px;
+  color: #9ca3af;
+  margin: 0 0 16px 0;
+}
+
+.networkBadge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: #374151;
+  padding: 8px 16px;
+  border-radius: 20px;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.networkIcon {
+  font-size: 12px;
+}
+
+.siteMetrics {
+  background: #1f2937;
+  border-radius: 12px;
+  padding: 20px;
+  margin-bottom: 24px;
+}
+
+.metricRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+
+  &:last-child {
+    margin-bottom: 0;
+  }
+}
+
+.metricLabel {
+  font-size: 14px;
+  color: #9ca3af;
+}
+
+.metricValue {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 14px;
+  color: #ffffff;
+}
+
+.listingBadge {
+  font-size: 12px;
+}
+
+.noMark {
+  color: #9ca3af;
+}
+
+.editIcon {
+  font-size: 12px;
+  opacity: 0.6;
+}
+
+.accountSelection {
+  margin-bottom: 24px;
+}
+
+.accountHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.accountLabel {
+  font-size: 14px;
+  color: #9ca3af;
+}
+
+.accountBadge {
+  background: #3b82f6;
+  color: #ffffff;
+  padding: 4px 12px;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.accountDropdownTrigger {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: #1f2937;
+  border: 1px solid #374151;
+  border-radius: 12px;
+  padding: 16px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+
+  &:hover {
+    background: #374151;
+    border-color: #4b5563;
+  }
+}
+
+.accountInfo {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.accountIcon {
+  font-size: 20px;
+}
+
+.accountDetails {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.accountName {
+  font-size: 14px;
+  font-weight: 500;
+  color: #ffffff;
+}
+
+.accountAddress {
+  font-size: 12px;
+  color: #9ca3af;
+}
+
+.dropdownArrow {
+  font-size: 12px;
+  color: #9ca3af;
+  transition: transform 0.2s ease;
+}
+
+.appearAsMetaMaskSection {
+  background: #1f2937;
+  border-radius: 12px;
+  padding: 20px;
+  margin-bottom: 24px;
+}
+
+.metaMaskToggle {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.metaMaskInfo {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex: 1;
+}
+
+.metaMaskIcon {
+  font-size: 20px;
+}
+
+.metaMaskDetails {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.metaMaskTitle {
+  font-size: 14px;
+  font-weight: 600;
+  color: #ffffff;
+}
+
+.metaMaskDescription {
+  font-size: 12px;
+  color: #9ca3af;
+  line-height: 1.3;
+}
+
+.toggleButton {
+  position: relative;
+  width: 44px;
+  height: 24px;
+  border: none;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  outline: none;
+}
+
+.toggleActive {
+  background: #3b82f6;
+}
+
+.toggleInactive {
+  background: #4b5563;
+}
+
+.toggleSlider {
+  position: absolute;
+  top: 2px;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: #ffffff;
+  transition: all 0.2s ease;
+}
+
+.sliderActive {
+  left: 22px;
+}
+
+.sliderInactive {
+  left: 2px;
+}
+
+.warningMessage {
+  text-align: center;
+  font-size: 14px;
+  color: #9ca3af;
+  margin-bottom: 24px;
+  line-height: 1.5;
+}
+
+.learnMoreLink {
+  color: #3b82f6;
+  text-decoration: none;
+
+  &:hover {
+    text-decoration: underline;
+  }
+}
+
+.actionButtons {
+  display: flex;
+  gap: 12px;
+}
+
+.cancelButton,
+.connectButton {
+  flex: 1;
+  padding: 16px;
+  border-radius: 12px;
+  font-size: 16px;
+  font-weight: 600;
+  border: none;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+}
+
+.cancelButton {
+  background: #374151;
+  color: #ffffff;
+  border: 1px solid #4b5563;
+
+  &:hover:not(:disabled) {
+    background: #4b5563;
+  }
+}
+
+.connectButton {
+  background: #3b82f6;
+  color: #ffffff;
+
+  &:hover:not(:disabled) {
+    background: #2563eb;
+  }
+}
+
+.spinner {
+  font-size: 14px;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}

@@ -1,0 +1,1 @@
+(()=>{"use strict";console.log("ClearWallet: Priority script executing..."),window.ethereum&&!window.ethereum.isClearWallet&&(window.ethereum_backup=window.ethereum,console.log("ClearWallet: Stored existing provider")),window.clearwallet_priority=!0,console.log("ClearWallet: Priority claimed successfully")})();

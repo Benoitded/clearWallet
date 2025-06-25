@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>ClearWallet EIP-1193 Test</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        max-width: 800px;
+        margin: 0 auto;
+        padding: 20px;
+      }
+      .test-section {
+        margin: 20px 0;
+        padding: 15px;
+        border: 1px solid #ddd;
+        border-radius: 5px;
+      }
+      button {
+        background: #007cba;
+        color: white;
+        border: none;
+        padding: 10px 15px;
+        border-radius: 3px;
+        cursor: pointer;
+        margin: 5px;
+      }
+      button:hover {
+        background: #005a87;
+      }
+      .result {
+        background: #f5f5f5;
+        padding: 10px;
+        margin: 10px 0;
+        border-radius: 3px;
+        white-space: pre-wrap;
+      }
+      .error {
+        background: #ffebee;
+        color: #c62828;
+      }
+      .success {
+        background: #e8f5e8;
+        color: #2e7d32;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>ClearWallet EIP-1193 Test DApp</h1>
+
+    <div class="test-section">
+      <h2>Provider Detection</h2>
+      <button onclick="checkProvider()">Check Provider</button>
+      <div id="provider-result" class="result"></div>
+    </div>
+
+    <div class="test-section">
+      <h2>Connection Status</h2>
+      <button onclick="checkConnection()">Check Connection</button>
+      <div id="connection-result" class="result"></div>
+    </div>
+
+    <div class="test-section">
+      <h2>Request Accounts (EIP-1193)</h2>
+      <button onclick="requestAccounts()">Request Accounts</button>
+      <div id="accounts-result" class="result"></div>
+    </div>
+
+    <div class="test-section">
+      <h2>Get Current Accounts</h2>
+      <button onclick="getCurrentAccounts()">Get Accounts</button>
+      <div id="current-accounts-result" class="result"></div>
+    </div>
+
+    <div class="test-section">
+      <h2>Chain Information</h2>
+      <button onclick="getChainInfo()">Get Chain Info</button>
+      <div id="chain-result" class="result"></div>
+    </div>
+
+    <div class="test-section">
+      <h2>Event Listeners</h2>
+      <button onclick="setupEventListeners()">Setup Event Listeners</button>
+      <div id="events-result" class="result"></div>
+    </div>
+
+    <div class="test-section">
+      <h2>Error Testing</h2>
+      <button onclick="testUnsupportedMethod()">Test Unsupported Method</button>
+      <button onclick="testUnauthorizedMethod()">
+        Test Unauthorized Method
+      </button>
+      <div id="error-result" class="result"></div>
+    </div>
+
+    <script>
+      let eventListenersSetup = false;
+
+      function log(elementId, message, isError = false) {
+        const element = document.getElementById(elementId);
+        element.textContent = message;
+        element.className = isError ? "result error" : "result success";
+      }
+
+      function checkProvider() {
+        if (typeof window.ethereum !== "undefined") {
+          const provider = window.ethereum;
+          const info = {
+            isMetaMask: provider.isMetaMask,
+            isClearWallet: provider.isClearWallet,
+            chainId: provider.chainId,
+            selectedAddress: provider.selectedAddress,
+            isConnected: provider.isConnected(),
+          };
+          log(
+            "provider-result",
+            `Provider found: ${JSON.stringify(info, null, 2)}`
+          );
+        } else {
+          log("provider-result", "No Ethereum provider found", true);
+        }
+      }
+
+      function checkConnection() {
+        if (window.ethereum) {
+          const connected = window.ethereum.isConnected();
+          log("connection-result", `Connection status: ${connected}`);
+        } else {
+          log("connection-result", "No provider", true);
+        }
+      }
+
+      async function requestAccounts() {
+        if (!window.ethereum) {
+          log("accounts-result", "No provider found", true);
+          return;
+        }
+
+        try {
+          const accounts = await window.ethereum.request({
+            method: "eth_requestAccounts",
+          });
+          log(
+            "accounts-result",
+            `Success! Accounts: ${JSON.stringify(accounts, null, 2)}`
+          );
+        } catch (error) {
+          log(
+            "accounts-result",
+            `Error: ${error.message}\nCode: ${
+              error.code
+            }\nData: ${JSON.stringify(error.data)}`,
+            true
+          );
+        }
+      }
+
+      async function getCurrentAccounts() {
+        if (!window.ethereum) {
+          log("current-accounts-result", "No provider found", true);
+          return;
+        }
+
+        try {
+          const accounts = await window.ethereum.request({
+            method: "eth_accounts",
+          });
+          log(
+            "current-accounts-result",
+            `Current accounts: ${JSON.stringify(accounts, null, 2)}`
+          );
+        } catch (error) {
+          log(
+            "current-accounts-result",
+            `Error: ${error.message}\nCode: ${error.code}`,
+            true
+          );
+        }
+      }
+
+      async function getChainInfo() {
+        if (!window.ethereum) {
+          log("chain-result", "No provider found", true);
+          return;
+        }
+
+        try {
+          const chainId = await window.ethereum.request({
+            method: "eth_chainId",
+          });
+          const networkVersion = await window.ethereum.request({
+            method: "net_version",
+          });
+
+          const info = {
+            chainId,
+            networkVersion,
+            chainIdDecimal: parseInt(chainId, 16),
+          };
+
+          log("chain-result", `Chain info: ${JSON.stringify(info, null, 2)}`);
+        } catch (error) {
+          log(
+            "chain-result",
+            `Error: ${error.message}\nCode: ${error.code}`,
+            true
+          );
+        }
+      }
+
+      function setupEventListeners() {
+        if (!window.ethereum) {
+          log("events-result", "No provider found", true);
+          return;
+        }
+
+        if (eventListenersSetup) {
+          log("events-result", "Event listeners already setup");
+          return;
+        }
+
+        // Connect event
+        window.ethereum.on("connect", (connectInfo) => {
+          log("events-result", `Connect event: ${JSON.stringify(connectInfo)}`);
+        });
+
+        // Disconnect event
+        window.ethereum.on("disconnect", (error) => {
+          log("events-result", `Disconnect event: ${error.message}`, true);
+        });
+
+        // Accounts changed
+        window.ethereum.on("accountsChanged", (accounts) => {
+          log("events-result", `Accounts changed: ${JSON.stringify(accounts)}`);
+        });
+
+        // Chain changed
+        window.ethereum.on("chainChanged", (chainId) => {
+          log("events-result", `Chain changed: ${chainId}`);
+        });
+
+        eventListenersSetup = true;
+        log("events-result", "Event listeners setup complete");
+      }
+
+      async function testUnsupportedMethod() {
+        if (!window.ethereum) {
+          log("error-result", "No provider found", true);
+          return;
+        }
+
+        try {
+          await window.ethereum.request({ method: "unsupported_method" });
+          log("error-result", "ERROR: Should have thrown an error", true);
+        } catch (error) {
+          log(
+            "error-result",
+            `Expected error for unsupported method:\nMessage: ${error.message}\nCode: ${error.code} (should be 4200)`
+          );
+        }
+      }
+
+      async function testUnauthorizedMethod() {
+        if (!window.ethereum) {
+          log("error-result", "No provider found", true);
+          return;
+        }
+
+        try {
+          // Test without being connected first
+          await window.ethereum.request({
+            method: "eth_sendTransaction",
+            params: [
+              {
+                to: "0x0000000000000000000000000000000000000000",
+                value: "0x0",
+              },
+            ],
+          });
+          log("error-result", "ERROR: Should have thrown an error", true);
+        } catch (error) {
+          log(
+            "error-result",
+            `Expected error for unauthorized method:\nMessage: ${error.message}\nCode: ${error.code} (should be 4100 or 4900)`
+          );
+        }
+      }
+
+      // Auto-check provider on load
+      document.addEventListener("DOMContentLoaded", () => {
+        checkProvider();
+      });
+    </script>
+  </body>
+</html>
