@@ -4,9 +4,12 @@
   "description": "A modern Ethereum wallet Chrome extension",
   "main": "build/background.js",
   "scripts": {
-    "build": "webpack --mode=production",
+    "build": "node scripts/build.js",
+    "build:webpack": "webpack --mode=production",
     "dev": "webpack --mode=development --watch",
-    "clean": "rm -rf build/"
+    "clean": "rm -rf build/",
+    "test:architecture": "node scripts/build.js",
+    "type-check": "tsc --noEmit"
   },
   "dependencies": {
     "react": "^18.2.0",

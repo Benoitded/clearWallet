@@ -1,12 +1,10 @@
 import React from "react";
-import { Screen } from "../../App";
+import { usePopupService } from "../../hooks/usePopupService";
 import styles from "./WelcomeScreen.module.scss";
 
-interface WelcomeScreenProps {
-  onNavigate: (screen: Screen) => void;
-}
+const WelcomeScreen: React.FC = () => {
+  const { navigateToView } = usePopupService();
 
-const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ onNavigate }) => {
   return (
     <div className={styles.welcomeScreen}>
       <div className={styles.welcomeHeader}>
@@ -18,14 +16,14 @@ const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ onNavigate }) => {
       <div className={styles.welcomeActions}>
         <button
           className={`${styles.btn} ${styles.btnPrimary}`}
-          onClick={() => onNavigate("create")}
+          onClick={() => navigateToView("create-wallet")}
         >
           Create new wallet
         </button>
 
         <button
           className={`${styles.btn} ${styles.btnSecondary}`}
-          onClick={() => onNavigate("import")}
+          onClick={() => navigateToView("import-wallet")}
         >
           Import wallet
         </button>

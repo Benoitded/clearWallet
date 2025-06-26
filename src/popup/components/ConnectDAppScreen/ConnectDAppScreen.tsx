@@ -3,37 +3,75 @@ import { useWallet } from "../../context/WalletContext";
 import { useNetwork } from "../../context/NetworkContext";
 import { useDAppConnection } from "../../context/DAppConnectionContext";
 import { useToast } from "../../hooks/useToast";
+import { usePopupService } from "../../hooks/usePopupService";
 import Header from "../Header";
 import Dropdown from "../common/Dropdown";
 import EthereumIcon from "../common/EthereumIcon";
 import styles from "./ConnectDAppScreen.module.scss";
 
 interface ConnectDAppScreenProps {
-  onBack: () => void;
-  siteUrl: string;
-  siteName: string;
+  siteUrl?: string;
+  siteName?: string;
   siteIcon?: string;
-  onConnect: (account: string, chainId: number) => void;
-  onReject: () => void;
 }
 
-const ConnectDAppScreen: React.FC<ConnectDAppScreenProps> = ({
-  onBack,
-  siteUrl,
-  siteName,
-  siteIcon,
-  onConnect,
-  onReject,
-}) => {
+const ConnectDAppScreen: React.FC<ConnectDAppScreenProps> = (props) => {
   const { wallets, selectedWallet } = useWallet();
   const { selectedNetwork } = useNetwork();
   const { connectToSite } = useDAppConnection();
   const { showToast } = useToast();
+  const { navigateToView } = usePopupService();
+
+  // Connection request data from appState
+  const [connectionRequest, setConnectionRequest] = useState<{
+    requestId: string;
+    origin: string;
+    siteName: string;
+    siteIcon: string;
+    tabId: number;
+  } | null>(null);
 
   const [selectedAccount, setSelectedAccount] = useState(
     selectedWallet?.address || ""
   );
   const [isConnecting, setIsConnecting] = useState(false);
+
+  // Load connection request from storage
+  useEffect(() => {
+    const loadConnectionRequest = async () => {
+      try {
+        const result = await chrome.storage.local.get(["appState"]);
+        const connectDAppRequest = result.appState?.connectDAppRequest;
+
+        if (connectDAppRequest) {
+          setConnectionRequest(connectDAppRequest);
+        } else if (props.siteUrl) {
+          // Fallback to props if no request in storage
+          setConnectionRequest({
+            requestId: "",
+            origin: props.siteUrl,
+            siteName: props.siteName || new URL(props.siteUrl).hostname,
+            siteIcon: props.siteIcon || "",
+            tabId: 0,
+          });
+        }
+      } catch (error) {
+        console.error("Error loading connection request:", error);
+        // Fallback to props
+        if (props.siteUrl) {
+          setConnectionRequest({
+            requestId: "",
+            origin: props.siteUrl,
+            siteName: props.siteName || "Unknown Site",
+            siteIcon: props.siteIcon || "",
+            tabId: 0,
+          });
+        }
+      }
+    };
+
+    loadConnectionRequest();
+  }, [props.siteUrl, props.siteName, props.siteIcon]);
 
   useEffect(() => {
     if (selectedWallet) {
@@ -41,11 +79,29 @@ const ConnectDAppScreen: React.FC<ConnectDAppScreenProps> = ({
     }
   }, [selectedWallet]);
 
-  const handleReject = async () => {
-    // Get the connection request from app state to find the requestId
-    const result = await chrome.storage.local.get(["appState"]);
-    const requestId = result.appState?.connectDAppRequest?.requestId;
+  if (!connectionRequest) {
+    return (
+      <div className={styles.connectDAppScreen}>
+        <Header
+          title="Connect to Dapp"
+          showBack={true}
+          onBack={() => navigateToView("dashboard")}
+        />
+        <div className={styles.content}>
+          <div style={{ textAlign: "center", padding: "20px" }}>
+            <p>No connection request found</p>
+            <button onClick={() => navigateToView("dashboard")}>
+              Go to Dashboard
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
+  const { requestId, origin, siteName, siteIcon } = connectionRequest;
+
+  const handleReject = async () => {
     if (requestId) {
       // Notify background script of rejection
       chrome.runtime.sendMessage({
@@ -54,7 +110,7 @@ const ConnectDAppScreen: React.FC<ConnectDAppScreenProps> = ({
       });
     }
 
-    onReject();
+    navigateToView("dashboard");
   };
 
   const handleConnect = async () => {
@@ -74,17 +130,13 @@ const ConnectDAppScreen: React.FC<ConnectDAppScreenProps> = ({
     try {
       // Connect to the site
       await connectToSite({
-        url: siteUrl,
+        url: origin,
         name: siteName,
         icon: siteIcon,
         permissions: ["eth_accounts"],
         chainId: selectedNetwork.chainId,
         account: selectedAccount,
       });
-
-      // Get the connection request from app state to find the requestId
-      const result = await chrome.storage.local.get(["appState"]);
-      const requestId = result.appState?.connectDAppRequest?.requestId;
 
       if (requestId) {
         // Notify background script of approval
@@ -98,14 +150,8 @@ const ConnectDAppScreen: React.FC<ConnectDAppScreenProps> = ({
         });
       }
 
-      // Update selected wallet if different
-      // TODO: Add selectWallet function to WalletContext
-      // if (selectedWallet?.address !== selectedAccount) {
-      //   selectWallet(wallet);
-      // }
-
-      // Notify parent component
-      onConnect(selectedAccount, selectedNetwork.chainId);
+      // Navigate back to dashboard
+      navigateToView("dashboard");
 
       showToast(`Connected to ${siteName}`, "success");
     } catch (error) {
@@ -129,7 +175,7 @@ const ConnectDAppScreen: React.FC<ConnectDAppScreenProps> = ({
 
   return (
     <div className={styles.connectDAppScreen}>
-      <Header title="Connect to Dapp" showBack={true} onBack={onBack} />
+      <Header title="Connect to Dapp" showBack={true} onBack={handleReject} />
 
       <div className={styles.content}>
         <div className={styles.siteInfo}>
@@ -144,7 +190,7 @@ const ConnectDAppScreen: React.FC<ConnectDAppScreenProps> = ({
           </div>
           <div className={styles.siteDetails}>
             <h2 className={styles.siteName}>{siteName}</h2>
-            <p className={styles.siteUrl}>{siteUrl}</p>
+            <p className={styles.siteUrl}>{origin}</p>
           </div>
         </div>
 

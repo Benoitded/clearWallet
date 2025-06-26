@@ -4,6 +4,7 @@ import Header from "../Header";
 import { useWallet } from "../../context/WalletContext";
 import { useNetwork } from "../../context/NetworkContext";
 import { useToast } from "../../hooks/useToast";
+import { usePopupService } from "../../hooks/usePopupService";
 import styles from "./SendEthScreen.module.scss";
 
 type TransactionStatus =
@@ -16,10 +17,6 @@ type TransactionStatus =
   | "confirmed"
   | "failed";
 
-interface SendEthScreenProps {
-  onBack: () => void;
-}
-
 interface GasInfo {
   gasPrice: string; // in wei
   gasLimit: string;
@@ -27,7 +24,7 @@ interface GasInfo {
   estimatedCostWei: string; // in wei
 }
 
-const SendEthScreen: React.FC<SendEthScreenProps> = ({ onBack }) => {
+const SendEthScreen: React.FC = () => {
   const [recipientAddress, setRecipientAddress] = useState("");
   const [amount, setAmount] = useState("");
   const [txStatus, setTxStatus] = useState<TransactionStatus>("idle");
@@ -40,6 +37,7 @@ const SendEthScreen: React.FC<SendEthScreenProps> = ({ onBack }) => {
   const { selectedWallet, wallets } = useWallet();
   const { selectedNetwork, selectedRpc } = useNetwork();
   const { showToast } = useToast();
+  const { navigateToView } = usePopupService();
 
   // State for real-time block time calculation
   const [averageBlockTime, setAverageBlockTime] = useState<number>(12); // Default to 12 seconds
@@ -380,7 +378,11 @@ const SendEthScreen: React.FC<SendEthScreenProps> = ({ onBack }) => {
   if (!selectedWallet) {
     return (
       <div className={styles.sendEthScreen}>
-        <Header title="Send ETH" showBack={true} onBack={onBack} />
+        <Header
+          title="Send ETH"
+          showBack={true}
+          onBack={() => navigateToView("dashboard")}
+        />
         <div className={styles.errorMessage}>No wallet selected</div>
       </div>
     );
@@ -393,7 +395,11 @@ const SendEthScreen: React.FC<SendEthScreenProps> = ({ onBack }) => {
 
   return (
     <div className={styles.sendEthScreen}>
-      <Header title="Send ETH" showBack={true} onBack={onBack} />
+      <Header
+        title="Send ETH"
+        showBack={true}
+        onBack={() => navigateToView("dashboard")}
+      />
 
       <div className={styles.walletInfo}>
         <div className={styles.fromWallet}>

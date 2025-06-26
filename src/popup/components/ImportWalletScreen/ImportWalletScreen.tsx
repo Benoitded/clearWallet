@@ -1,19 +1,12 @@
 import React, { useState } from "react";
 import { ethers } from "ethers";
-import Header from "../Header";
 import { useWallet } from "../../context/WalletContext";
 import { useToast } from "../../hooks/useToast";
+import { usePopupService } from "../../hooks/usePopupService";
+import Header from "../Header";
 import styles from "./ImportWalletScreen.module.scss";
 
-interface ImportWalletScreenProps {
-  onWalletImported: () => void;
-  onBack: () => void;
-}
-
-const ImportWalletScreen: React.FC<ImportWalletScreenProps> = ({
-  onWalletImported,
-  onBack,
-}) => {
+const ImportWalletScreen: React.FC = () => {
   const [importMethod, setImportMethod] = useState<"mnemonic" | "privateKey">(
     "mnemonic"
   );
@@ -23,6 +16,7 @@ const ImportWalletScreen: React.FC<ImportWalletScreenProps> = ({
   const [isImporting, setIsImporting] = useState(false);
   const { showToast } = useToast();
   const { addWallet } = useWallet();
+  const { navigateToView } = usePopupService();
 
   const importWallet = async () => {
     if (!walletName.trim()) {
@@ -61,8 +55,10 @@ const ImportWalletScreen: React.FC<ImportWalletScreenProps> = ({
         });
 
         await addWallet(newWallet);
-        onWalletImported();
         showToast("Wallet imported successfully", "success");
+
+        // Navigate directly to dashboard
+        navigateToView("dashboard");
       } else {
         // Private key import - single wallet
         if (!privateKey.trim()) {
@@ -86,8 +82,10 @@ const ImportWalletScreen: React.FC<ImportWalletScreenProps> = ({
         });
 
         await addWallet(newWallet);
-        onWalletImported();
         showToast("Wallet imported successfully", "success");
+
+        // Navigate directly to dashboard
+        navigateToView("dashboard");
       }
     } catch (error) {
       console.error("Error importing wallet:", error);
@@ -104,7 +102,11 @@ const ImportWalletScreen: React.FC<ImportWalletScreenProps> = ({
 
   return (
     <div className={styles.importWalletScreen}>
-      <Header title="Import Wallet" showBack={true} onBack={onBack} />
+      <Header
+        title="Import Wallet"
+        showBack={true}
+        onBack={() => navigateToView("welcome")}
+      />
 
       <div className={styles.formContainer}>
         <div className={styles.importMethodTabs}>

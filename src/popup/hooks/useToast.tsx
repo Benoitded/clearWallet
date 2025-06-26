@@ -1,10 +1,6 @@
-import React, {
-  createContext,
-  useContext,
-  useState,
-  useEffect,
-  ReactNode,
-} from "react";
+// Legacy toast hook - now redirects to new notification system
+import React, { ReactNode, useEffect } from "react";
+import { useNotifications } from "./useUIState";
 import Toast from "../components/Toast";
 import type { ToastProps } from "../components/Toast/Toast";
 
@@ -13,44 +9,50 @@ interface ToastContextType {
   showReconnectToast: (walletName: string, origin: string) => void;
 }
 
-const ToastContext = createContext<ToastContextType | undefined>(undefined);
-
+// Legacy compatibility wrapper using new notification system
 export const ToastProvider: React.FC<{ children: ReactNode }> = ({
   children,
 }) => {
-  const [toasts, setToasts] = useState<Array<ToastProps & { id: string }>>([]);
+  const {
+    notifications,
+    showSuccess,
+    showError,
+    showWarning,
+    showInfo,
+    removeNotification,
+  } = useNotifications();
 
   const showToast = (message: string, type: ToastProps["type"]) => {
-    const id = Date.now().toString();
-    const newToast = {
-      id,
-      message,
-      type,
-      onClose: () => removeToast(id),
-    };
-    setToasts((prev) => [...prev, newToast]);
-  };
-
-  const removeToast = (id: string) => {
-    setToasts((prev) => prev.filter((toast) => toast.id !== id));
+    switch (type) {
+      case "success":
+        showSuccess(message);
+        break;
+      case "error":
+        showError(message);
+        break;
+      case "warning":
+        showWarning(message);
+        break;
+      case "info":
+        showInfo(message);
+        break;
+    }
   };
 
   const showReconnectToast = (walletName: string, origin: string) => {
-    showToast(
-      `${walletName} is not connected to ${origin}. Click to connect.`,
-      "warning"
+    showWarning(
+      `${walletName} is not connected to ${origin}. Click to connect.`
     );
   };
 
   useEffect(() => {
     const handleNetworkChanged = (event: CustomEvent) => {
-      showToast(`Switched to ${event.detail.networkName}`, "success");
+      showSuccess(`Switched to ${event.detail.networkName}`);
     };
 
     const handleRpcChanged = (event: CustomEvent) => {
-      showToast(
-        `Switched to ${event.detail.networkName} - ${event.detail.rpcName}`,
-        "success"
+      showSuccess(
+        `Switched to ${event.detail.networkName} - ${event.detail.rpcName}`
       );
     };
 
@@ -83,18 +85,27 @@ export const ToastProvider: React.FC<{ children: ReactNode }> = ({
       );
       chrome.runtime.onMessage.removeListener(handleRuntimeMessage);
     };
-  }, []);
+  }, [showSuccess, showWarning]);
+
+  // Convert notifications to legacy toast format for rendering
+  const toasts = notifications.map((notification, index) => ({
+    id: notification.id,
+    message: notification.message,
+    type: notification.type as ToastProps["type"],
+    onClose: () => removeNotification(notification.id),
+    index,
+  }));
 
   return (
-    <ToastContext.Provider value={{ showToast, showReconnectToast }}>
+    <>
       {children}
       <div style={{ position: "relative", zIndex: 1000 }}>
-        {toasts.map((toast, index) => (
+        {toasts.map((toast) => (
           <div
             key={toast.id}
             style={{
               position: "fixed",
-              top: `${20 + index * 60}px`,
+              top: `${20 + toast.index * 60}px`,
               right: "20px",
               zIndex: 1000,
             }}
@@ -103,14 +114,39 @@ export const ToastProvider: React.FC<{ children: ReactNode }> = ({
           </div>
         ))}
       </div>
-    </ToastContext.Provider>
+    </>
   );
 };
 
-export const useToast = () => {
-  const context = useContext(ToastContext);
-  if (!context) {
-    throw new Error("useToast must be used within a ToastProvider");
-  }
-  return context;
+// Legacy hook that wraps the new notification system
+export const useToast = (): ToastContextType => {
+  const { showSuccess, showError, showWarning, showInfo } = useNotifications();
+
+  const showToast = (message: string, type: ToastProps["type"]) => {
+    switch (type) {
+      case "success":
+        showSuccess(message);
+        break;
+      case "error":
+        showError(message);
+        break;
+      case "warning":
+        showWarning(message);
+        break;
+      case "info":
+        showInfo(message);
+        break;
+    }
+  };
+
+  const showReconnectToast = (walletName: string, origin: string) => {
+    showWarning(
+      `${walletName} is not connected to ${origin}. Click to connect.`
+    );
+  };
+
+  return {
+    showToast,
+    showReconnectToast,
+  };
 };

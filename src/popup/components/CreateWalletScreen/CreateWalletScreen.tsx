@@ -3,23 +3,17 @@ import { ethers } from "ethers";
 import Header from "../Header";
 import { useWallet } from "../../context/WalletContext";
 import { useToast } from "../../hooks/useToast";
+import { usePopupService } from "../../hooks/usePopupService";
 import styles from "./CreateWalletScreen.module.scss";
 
-interface CreateWalletScreenProps {
-  onWalletCreated: () => void;
-  onBack: () => void;
-}
-
-const CreateWalletScreen: React.FC<CreateWalletScreenProps> = ({
-  onWalletCreated,
-  onBack,
-}) => {
+const CreateWalletScreen: React.FC = () => {
   const [walletName, setWalletName] = useState("");
   const [isCreating, setIsCreating] = useState(false);
   const [mnemonic, setMnemonic] = useState("");
   const [showMnemonic, setShowMnemonic] = useState(false);
   const { showToast } = useToast();
   const { addWallet } = useWallet();
+  const { navigateToView } = usePopupService();
 
   const generateWallet = async () => {
     if (!walletName.trim()) {
@@ -72,8 +66,11 @@ const CreateWalletScreen: React.FC<CreateWalletScreenProps> = ({
       });
 
       await addWallet(newWallet);
-      onWalletCreated();
+
       showToast("Wallet saved successfully", "success");
+
+      // Navigate directly to dashboard
+      navigateToView("dashboard");
     } catch (error) {
       console.error("Error saving wallet:", error);
       showToast("Error saving wallet", "error");
@@ -86,7 +83,7 @@ const CreateWalletScreen: React.FC<CreateWalletScreenProps> = ({
         <Header
           title="Your Secret Recovery Phrase"
           showBack={true}
-          onBack={onBack}
+          onBack={() => navigateToView("welcome")}
         />
 
         <div className={styles.mnemonicContainer}>
@@ -119,7 +116,11 @@ const CreateWalletScreen: React.FC<CreateWalletScreenProps> = ({
 
   return (
     <div className={styles.createWalletScreen}>
-      <Header title="Create New Wallet" showBack={true} onBack={onBack} />
+      <Header
+        title="Create New Wallet"
+        showBack={true}
+        onBack={() => navigateToView("welcome")}
+      />
 
       <div className={styles.formContainer}>
         <div className={styles.formGroup}>

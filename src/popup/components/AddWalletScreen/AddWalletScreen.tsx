@@ -3,12 +3,8 @@ import { ethers } from "ethers";
 import Header from "../Header";
 import { useWallet } from "../../context/WalletContext";
 import { useToast } from "../../hooks/useToast";
+import { usePopupService } from "../../hooks/usePopupService";
 import styles from "./AddWalletScreen.module.scss";
-
-interface AddWalletScreenProps {
-  onWalletAdded: () => void;
-  onBack: () => void;
-}
 
 interface WalletOption {
   address: string;
@@ -17,10 +13,7 @@ interface WalletOption {
   selected: boolean;
 }
 
-const AddWalletScreen: React.FC<AddWalletScreenProps> = ({
-  onWalletAdded,
-  onBack,
-}) => {
+const AddWalletScreen: React.FC = () => {
   const [walletOptions, setWalletOptions] = useState<WalletOption[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isAdding, setIsAdding] = useState(false);
@@ -28,6 +21,7 @@ const AddWalletScreen: React.FC<AddWalletScreenProps> = ({
 
   const { addWallet, wallets } = useWallet();
   const { showToast } = useToast();
+  const { navigateToView } = usePopupService();
 
   useEffect(() => {
     loadWalletOptions();
@@ -39,7 +33,7 @@ const AddWalletScreen: React.FC<AddWalletScreenProps> = ({
       // Get the first wallet's mnemonic to derive new addresses
       if (wallets.length === 0) {
         showToast("No existing wallets found", "error");
-        onBack();
+        navigateToView("dashboard");
         return;
       }
 
@@ -51,7 +45,7 @@ const AddWalletScreen: React.FC<AddWalletScreenProps> = ({
 
       if (!walletData?.mnemonic) {
         showToast("Cannot derive new addresses without mnemonic", "error");
-        onBack();
+        navigateToView("dashboard");
         return;
       }
 
@@ -91,7 +85,7 @@ const AddWalletScreen: React.FC<AddWalletScreenProps> = ({
     } catch (error) {
       console.error("Error loading wallet options:", error);
       showToast("Error loading wallet options", "error");
-      onBack();
+      navigateToView("dashboard");
     }
     setIsLoading(false);
   };
@@ -146,7 +140,7 @@ const AddWalletScreen: React.FC<AddWalletScreenProps> = ({
         `Added ${selectedWallets.length} wallet(s) successfully`,
         "success"
       );
-      onWalletAdded();
+      navigateToView("dashboard");
     } catch (error) {
       console.error("Error adding wallets:", error);
       showToast("Error adding wallets", "error");
@@ -164,7 +158,11 @@ const AddWalletScreen: React.FC<AddWalletScreenProps> = ({
   if (isLoading) {
     return (
       <div className={styles.addWalletScreen}>
-        <Header title="Add Wallet" showBack={true} onBack={onBack} />
+        <Header
+          title="Add Wallet"
+          showBack={true}
+          onBack={() => navigateToView("dashboard")}
+        />
         <div className={styles.loading}>Loading available addresses...</div>
       </div>
     );
@@ -172,7 +170,11 @@ const AddWalletScreen: React.FC<AddWalletScreenProps> = ({
 
   return (
     <div className={styles.addWalletScreen}>
-      <Header title="Add Wallet" showBack={true} onBack={onBack} />
+      <Header
+        title="Add Wallet"
+        showBack={true}
+        onBack={() => navigateToView("dashboard")}
+      />
 
       <div className={styles.description}>
         <h3>Here are your addresses available,</h3>

@@ -1,6 +1,4 @@
-// Content script for clearWallet Chrome extension
-// Based on Frame and MetaMask patterns for proper injection
-
+// Content script for clearWallet Chrome extension - restored working version
 console.log("ClearWallet: Content script loading...");
 
 // 1. First, inject our priority script as early as possible
@@ -64,22 +62,8 @@ window.addEventListener("message", async (event) => {
 
   const { type, data, id } = event.data;
 
-  // List of message types that should NOT be forwarded to background
-  // These are typically notification messages from background to page
-  const notificationTypes = [
-    "CLEARWALLET_CHAIN_CHANGED",
-    "CLEARWALLET_ACCOUNT_CHANGED",
-    "CLEARWALLET_CONNECTION_SUCCESS",
-    "CLEARWALLET_WALLET_DISCONNECTED",
-  ];
-
-  // Handle requests that need to go to background script (but not responses or notifications)
-  if (
-    type &&
-    type.startsWith("CLEARWALLET_") &&
-    !type.includes("_RESPONSE") &&
-    !notificationTypes.includes(type)
-  ) {
+  // Handle requests that need to go to background script (but not responses)
+  if (type && type.startsWith("CLEARWALLET_") && !type.includes("_RESPONSE")) {
     try {
       console.log("ClearWallet: Forwarding message to background:", type);
 
@@ -170,3 +154,5 @@ setTimeout(() => {
     injectAggressiveScript();
   }
 }, 1000);
+
+console.log("ClearWallet: Content script loaded");

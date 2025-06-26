@@ -7,21 +7,10 @@ import { useWallet } from "../../context/WalletContext";
 import { useNetwork } from "../../context/NetworkContext";
 import { useDAppConnection } from "../../context/DAppConnectionContext";
 import { useToast } from "../../hooks/useToast";
+import { usePopupService } from "../../hooks/usePopupService";
 import styles from "./WalletDashboard.module.scss";
 
-interface WalletDashboardProps {
-  onSendEth: () => void;
-  onSettings: () => void;
-  onAddWallet: () => void;
-  onLogoClick?: () => void;
-}
-
-const WalletDashboard: React.FC<WalletDashboardProps> = ({
-  onSendEth,
-  onSettings,
-  onAddWallet,
-  onLogoClick,
-}) => {
+const WalletDashboard: React.FC = () => {
   const [showWalletList, setShowWalletList] = useState(false);
   const [balance, setBalance] = useState("0");
   const [isLoadingBalance, setIsLoadingBalance] = useState(false);
@@ -54,6 +43,7 @@ const WalletDashboard: React.FC<WalletDashboardProps> = ({
     useNetwork();
   const { connectedSites } = useDAppConnection();
   const { showToast } = useToast();
+  const { navigateToView } = usePopupService();
 
   useEffect(() => {
     if (selectedWallet) {
@@ -264,8 +254,8 @@ const WalletDashboard: React.FC<WalletDashboardProps> = ({
           );
           showToast("New wallet added successfully", "success");
         } else {
-          // No mnemonic, redirect to create screen
-          onAddWallet();
+          // No mnemonic, redirect to add wallet screen
+          navigateToView("add-wallet");
         }
       } catch (error) {
         showToast("Error adding wallet", "error");
@@ -281,13 +271,13 @@ const WalletDashboard: React.FC<WalletDashboardProps> = ({
     <div className={styles.walletDashboard}>
       <Header
         showLogo={true}
-        onLogoClick={onLogoClick}
+        onLogoClick={() => navigateToView("dashboard")}
         rightElement={
           <div className={styles.headerActions}>
             <ConnectionIndicator />
             <button
               className={styles.settingsBtn}
-              onClick={onSettings}
+              onClick={() => navigateToView("settings")}
               title="Settings"
             >
               ⚙️
@@ -483,7 +473,7 @@ const WalletDashboard: React.FC<WalletDashboardProps> = ({
       <div className={styles.actions}>
         <button
           className={`${styles.btn} ${styles.btnPrimary}`}
-          onClick={onSendEth}
+          onClick={() => navigateToView("send")}
         >
           Send ETH
         </button>
@@ -558,7 +548,7 @@ const WalletDashboard: React.FC<WalletDashboardProps> = ({
               className={styles.settingsLink}
               onClick={() => {
                 setShowNetworkDropdown(false);
-                onSettings();
+                navigateToView("settings");
               }}
             >
               ⚙️ Manage Networks

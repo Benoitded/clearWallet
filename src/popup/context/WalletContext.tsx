@@ -47,7 +47,9 @@ export const WalletProvider: React.FC<{ children: ReactNode }> = ({
       const walletsResult = await chrome.storage.local.get([
         "wallets",
         "selectedWallet",
+        "appState",
       ]);
+
       if (walletsResult.wallets && walletsResult.wallets.length > 0) {
         setWallets(walletsResult.wallets);
 
@@ -59,9 +61,18 @@ export const WalletProvider: React.FC<{ children: ReactNode }> = ({
             (w: Wallet) => w.address === savedSelectedWallet.address
           );
 
-        setSelectedWallet(
-          walletExists ? savedSelectedWallet : walletsResult.wallets[0]
-        );
+        const selectedWallet = walletExists
+          ? savedSelectedWallet
+          : walletsResult.wallets[0];
+        setSelectedWallet(selectedWallet);
+
+        // Ensure appState is also updated
+        await chrome.storage.local.set({
+          appState: {
+            ...walletsResult.appState,
+            selectedWallet: selectedWallet,
+          },
+        });
         return;
       }
 
@@ -86,8 +97,16 @@ export const WalletProvider: React.FC<{ children: ReactNode }> = ({
         if (foundWallets.length > 0) {
           setWallets(foundWallets);
           setSelectedWallet(foundWallets[0]);
-          // Save wallets array for future use
-          await chrome.storage.local.set({ wallets: foundWallets });
+
+          // Save wallets array and appState for future use
+          await chrome.storage.local.set({
+            wallets: foundWallets,
+            selectedWallet: foundWallets[0],
+            appState: {
+              ...walletsResult.appState,
+              selectedWallet: foundWallets[0],
+            },
+          });
         }
       }
     } catch (error) {
@@ -98,10 +117,22 @@ export const WalletProvider: React.FC<{ children: ReactNode }> = ({
   const addWallet = async (wallet: Wallet) => {
     const updatedWallets = [...wallets, wallet];
     setWallets(updatedWallets);
-    if (!selectedWallet) {
+
+    // Always set new wallet as selected if it's the first wallet or no wallet is selected
+    if (!selectedWallet || wallets.length === 0) {
       setSelectedWallet(wallet);
       await chrome.storage.local.set({ selectedWallet: wallet });
+
+      // Also update appState
+      const appState = await chrome.storage.local.get(["appState"]);
+      await chrome.storage.local.set({
+        appState: {
+          ...appState.appState,
+          selectedWallet: wallet,
+        },
+      });
     }
+
     await chrome.storage.local.set({ wallets: updatedWallets });
   };
 

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useEffect } from "react";
 import WelcomeScreen from "./components/WelcomeScreen";
 import CreateWalletScreen from "./components/CreateWalletScreen";
 import ImportWalletScreen from "./components/ImportWalletScreen";
@@ -6,110 +6,104 @@ import WalletDashboard from "./components/WalletDashboard";
 import SendEthScreen from "./components/SendEthScreen";
 import SettingsScreen from "./components/SettingsScreen";
 import AddWalletScreen from "./components/AddWalletScreen";
-import { ToastProvider } from "./hooks/useToast";
-import { NetworkProvider } from "./context/NetworkContext";
-import { WalletProvider, useWallet } from "./context/WalletContext";
-import { DAppConnectionProvider } from "./context/DAppConnectionContext";
-import { AppStateProvider, useAppState } from "./context/AppStateContext";
 import ConnectDAppScreen from "./components/ConnectDAppScreen";
+import { ToastProvider } from "./hooks/useToast";
+import { WalletProvider } from "./context/WalletContext";
+import { NetworkProvider } from "./context/NetworkContext";
+import { DAppConnectionProvider } from "./context/DAppConnectionContext";
+import { usePopupService } from "./hooks/usePopupService";
+import { useUIState } from "./hooks/useUIState";
 import "./styles/App.scss";
 
 export type Screen =
+  | "loading"
   | "welcome"
-  | "create"
-  | "import"
+  | "create-wallet"
+  | "import-wallet"
   | "dashboard"
   | "send"
   | "settings"
-  | "addWallet"
+  | "add-wallet"
   | "connect-dapp";
 
 const AppContent: React.FC = () => {
-  const { wallets, selectedWallet } = useWallet();
-  const { appState, setCurrentScreen: setAppStateScreen } = useAppState();
-  const currentScreen = appState.currentScreen as Screen;
+  const { currentView, isReady, isLoading, wallets, selectedWallet, error } =
+    usePopupService();
 
-  // Navigate to the correct screen based on wallet existence
+  const { theme } = useUIState();
+
+  // Apply theme to document
   useEffect(() => {
-    // Special case: dApp connection should remain
-    if (currentScreen === "connect-dapp" && appState.connectDAppRequest) {
-      return;
-    }
+    document.documentElement.style.setProperty(
+      "--primary-color",
+      theme.primary
+    );
+    document.documentElement.style.setProperty(
+      "--background-color",
+      theme.background
+    );
+    document.documentElement.style.setProperty("--text-color", theme.text);
+    document.documentElement.style.setProperty(
+      "--surface-color",
+      theme.surface
+    );
+    document.documentElement.style.setProperty("--border-color", theme.border);
+    document.documentElement.style.setProperty(
+      "--success-color",
+      theme.success
+    );
+    document.documentElement.style.setProperty(
+      "--warning-color",
+      theme.warning
+    );
+    document.documentElement.style.setProperty("--error-color", theme.error);
+  }, [theme]);
 
-    // If no wallets exist, go to welcome screen
-    if (wallets.length === 0) {
-      setAppStateScreen("welcome");
-    } else {
-      // If wallets exist and we're on welcome screen, go to dashboard
-      if (currentScreen === "welcome") {
-        setAppStateScreen("dashboard");
-      }
-    }
-  }, [wallets.length, currentScreen, appState.connectDAppRequest]);
+  // Show loading screen if not ready
+  if (!isReady || isLoading) {
+    return (
+      <div className="app">
+        <div className="loading-screen">
+          <div className="loading-spinner"></div>
+          <p>Loading ClearWallet...</p>
+        </div>
+      </div>
+    );
+  }
 
-  // Save screen changes to storage
-  const handleScreenChange = async (screen: Screen) => {
-    setAppStateScreen(screen as any);
-  };
+  // Show error if initialization failed
+  if (error) {
+    return (
+      <div className="app">
+        <div className="error-screen">
+          <h2>Error</h2>
+          <p>{error}</p>
+          <button onClick={() => window.location.reload()}>Retry</button>
+        </div>
+      </div>
+    );
+  }
 
   const renderScreen = () => {
-    switch (currentScreen) {
+    switch (currentView) {
       case "welcome":
-        return <WelcomeScreen onNavigate={handleScreenChange} />;
-      case "create":
-        return (
-          <CreateWalletScreen
-            onWalletCreated={() => handleScreenChange("dashboard")}
-            onBack={() => handleScreenChange("welcome")}
-          />
-        );
-      case "import":
-        return (
-          <ImportWalletScreen
-            onWalletImported={() => handleScreenChange("dashboard")}
-            onBack={() => handleScreenChange("welcome")}
-          />
-        );
+        return <WelcomeScreen />;
+      case "create-wallet":
+        return <CreateWalletScreen />;
+      case "import-wallet":
+        return <ImportWalletScreen />;
       case "dashboard":
-        return (
-          <WalletDashboard
-            onSendEth={() => handleScreenChange("send")}
-            onSettings={() => handleScreenChange("settings")}
-            onAddWallet={() => handleScreenChange("addWallet")}
-            onLogoClick={() => handleScreenChange("dashboard")}
-          />
-        );
+        return <WalletDashboard />;
       case "send":
-        return <SendEthScreen onBack={() => handleScreenChange("dashboard")} />;
+        return <SendEthScreen />;
       case "settings":
-        return (
-          <SettingsScreen
-            onBack={() => handleScreenChange("dashboard")}
-            onWalletDeleted={() => handleScreenChange("welcome")}
-          />
-        );
-      case "addWallet":
-        return (
-          <AddWalletScreen
-            onWalletAdded={() => handleScreenChange("dashboard")}
-            onBack={() => handleScreenChange("dashboard")}
-          />
-        );
+        return <SettingsScreen />;
+      case "add-wallet":
+        return <AddWalletScreen />;
       case "connect-dapp":
-        return appState.connectDAppRequest ? (
-          <ConnectDAppScreen
-            onBack={() => handleScreenChange("dashboard")}
-            siteUrl={appState.connectDAppRequest.siteUrl}
-            siteName={appState.connectDAppRequest.siteName}
-            siteIcon={appState.connectDAppRequest.siteIcon}
-            onConnect={() => handleScreenChange("dashboard")}
-            onReject={() => handleScreenChange("dashboard")}
-          />
-        ) : (
-          <WelcomeScreen onNavigate={handleScreenChange} />
-        );
+        return <ConnectDAppScreen />;
       default:
-        return <WelcomeScreen onNavigate={handleScreenChange} />;
+        return <WelcomeScreen />;
     }
   };
 
@@ -120,13 +114,11 @@ const App: React.FC = () => {
   return (
     <ToastProvider>
       <NetworkProvider>
-        <WalletProvider>
-          <DAppConnectionProvider>
-            <AppStateProvider>
-              <AppContent />
-            </AppStateProvider>
-          </DAppConnectionProvider>
-        </WalletProvider>
+        <DAppConnectionProvider>
+          <WalletProvider>
+            <AppContent />
+          </WalletProvider>
+        </DAppConnectionProvider>
       </NetworkProvider>
     </ToastProvider>
   );

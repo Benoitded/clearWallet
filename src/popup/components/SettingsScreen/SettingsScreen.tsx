@@ -3,18 +3,11 @@ import Header from "../Header";
 import { useWallet } from "../../context/WalletContext";
 import { useNetwork } from "../../context/NetworkContext";
 import { useToast } from "../../hooks/useToast";
+import { usePopupService } from "../../hooks/usePopupService";
 import { Network, RpcEndpoint } from "../../data/networks";
 import styles from "./SettingsScreen.module.scss";
 
-interface SettingsScreenProps {
-  onBack: () => void;
-  onWalletDeleted: () => void;
-}
-
-const SettingsScreen: React.FC<SettingsScreenProps> = ({
-  onBack,
-  onWalletDeleted,
-}) => {
+const SettingsScreen: React.FC = () => {
   const [showMnemonic, setShowMnemonic] = useState(false);
   const [mnemonic, setMnemonic] = useState("");
   const [password, setPassword] = useState("");
@@ -52,6 +45,7 @@ const SettingsScreen: React.FC<SettingsScreenProps> = ({
     testRpcConnection,
   } = useNetwork();
   const { showToast } = useToast();
+  const { navigateToView } = usePopupService();
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -199,7 +193,7 @@ const SettingsScreen: React.FC<SettingsScreenProps> = ({
     try {
       await deleteAllWallets();
       showToast("All wallets deleted successfully", "success");
-      onWalletDeleted();
+      navigateToView("welcome");
     } catch (error) {
       showToast("Error deleting wallets", "error");
     }
@@ -533,7 +527,11 @@ const SettingsScreen: React.FC<SettingsScreenProps> = ({
 
   return (
     <div className={styles.settingsScreen}>
-      <Header title="Settings" showBack={true} onBack={onBack} />
+      <Header
+        title="Settings"
+        showBack={true}
+        onBack={() => navigateToView("dashboard")}
+      />
 
       <div className={styles.content}>
         {/* Network Selection Section */}

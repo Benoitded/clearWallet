@@ -143,6 +143,22 @@ p {
   font-family: inherit;
 }
 
+.back-btn {
+  background: none;
+  border: none;
+  font-size: 18px;
+  cursor: pointer;
+  color: var(--text-secondary);
+  padding: 8px;
+  border-radius: var(--radius);
+  transition: all 0.2s ease;
+
+  &:hover {
+    background-color: var(--surface);
+    color: var(--text-primary);
+  }
+}
+
 .loading {
   display: flex;
   align-items: center;
