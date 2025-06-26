@@ -236,8 +236,11 @@
           const { resolve, reject } = pendingRequests.get(id);
           pendingRequests.delete(id);
 
-          if (data.error) {
-            if (data.error.includes && data.error.includes("rejected")) {
+          if (data && data.error) {
+            if (
+              typeof data.error === "string" &&
+              data.error.includes("rejected")
+            ) {
               reject(
                 this.createError(
                   EIP1193_ERROR_CODES.USER_REJECTED,
@@ -246,10 +249,13 @@
               );
             } else {
               reject(
-                this.createError(EIP1193_ERROR_CODES.UNAUTHORIZED, data.error)
+                this.createError(
+                  EIP1193_ERROR_CODES.UNAUTHORIZED,
+                  typeof data.error === "string" ? data.error : "Unknown error"
+                )
               );
             }
-          } else {
+          } else if (data) {
             // Handle successful connection
             if (data.accounts && data.accounts.length > 0) {
               this.selectedAddress = data.accounts[0];
@@ -265,8 +271,27 @@
               this.emit("accountsChanged", data.accounts);
             }
 
-            resolve(data.accounts || data.result || data);
+            resolve(data.accounts || data.result || data.success || data);
+          } else {
+            // No data received
+            reject(
+              this.createError(
+                EIP1193_ERROR_CODES.DISCONNECTED,
+                "No response received"
+              )
+            );
           }
+          return;
+        }
+
+        // Handle CHECK_CONNECTION responses
+        if (
+          type === "CLEARWALLET_CHECK_CONNECTION_RESPONSE" &&
+          pendingRequests.has(id)
+        ) {
+          const { resolve } = pendingRequests.get(id);
+          pendingRequests.delete(id);
+          resolve(data);
           return;
         }
 
@@ -294,13 +319,46 @@
 
     private async checkExistingConnection() {
       try {
+        const requestId = ++requestIdCounter;
+
+        // Store promise resolvers for the response
+        const connectionPromise = new Promise((resolve, reject) => {
+          pendingRequests.set(requestId, { resolve, reject });
+
+          // Timeout after 5 seconds
+          setTimeout(() => {
+            if (pendingRequests.has(requestId)) {
+              pendingRequests.delete(requestId);
+              resolve(null); // No response means no connection
+            }
+          }, 5000);
+        });
+
         const message = {
           type: "CLEARWALLET_CHECK_CONNECTION",
           data: { origin: window.location.origin },
-          id: ++requestIdCounter,
+          id: requestId,
         };
 
         window.postMessage(message, "*");
+
+        // Wait for response
+        const response = await connectionPromise;
+
+        if (response && (response as any).connected) {
+          const data = response as any;
+          this.selectedAddress = data.account;
+          this.chainId = data.chainId;
+          this.networkVersion = data.chainId
+            ? parseInt(data.chainId, 16).toString()
+            : "1";
+          this._isConnected = true;
+          this._isAuthorized = true;
+
+          console.log("ClearWallet: Restored existing connection", data);
+          this.emit("connect", { chainId: data.chainId });
+          this.emit("accountsChanged", [data.account]);
+        }
       } catch (error) {
         console.log("ClearWallet: No existing connection");
       }

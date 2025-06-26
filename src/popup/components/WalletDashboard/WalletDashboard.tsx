@@ -442,7 +442,7 @@ const WalletDashboard: React.FC<WalletDashboardProps> = ({
 
       <div className={styles.balanceSection}>
         <div className={styles.balanceContainer}>
-          <div className={styles.balanceLabel}>Your balance</div>
+          <div className={styles.balanceLabel}>Your balancee</div>
           <div className={styles.balanceAmount}>
             {isLoadingBalance ? (
               <span className={styles.loadingText}>Loading...</span>

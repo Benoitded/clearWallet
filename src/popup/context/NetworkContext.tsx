@@ -49,10 +49,38 @@ export const NetworkProvider: React.FC<{ children: ReactNode }> = ({
           "selectedRpcs",
         ]);
 
-        // Load custom networks
-        if (result.customNetworks) {
-          setNetworks([...NETWORKS, ...result.customNetworks]);
+        // Clean up any duplicate networks that might have been stored
+        let customNetworks = result.customNetworks || [];
+
+        // Remove any custom networks that have the same chainId as built-in networks
+        const builtInChainIds = NETWORKS.map((n) => n.chainId);
+        customNetworks = customNetworks.filter(
+          (network: Network) =>
+            !builtInChainIds.includes(network.chainId) || network.isCustom
+        );
+
+        // Remove duplicates within custom networks (same chainId)
+        const uniqueCustomNetworks = customNetworks.reduce(
+          (acc: Network[], network: Network) => {
+            const existing = acc.find((n) => n.chainId === network.chainId);
+            if (!existing) {
+              acc.push(network);
+            }
+            return acc;
+          },
+          []
+        );
+
+        // Save cleaned networks back to storage if any duplicates were found
+        if (customNetworks.length !== uniqueCustomNetworks.length) {
+          await chrome.storage.local.set({
+            customNetworks: uniqueCustomNetworks,
+          });
+          console.log("ClearWallet: Cleaned duplicate networks from storage");
         }
+
+        // Load custom networks
+        setNetworks([...NETWORKS, ...uniqueCustomNetworks]);
 
         // Load selected RPCs
         if (result.selectedRpcs) {
@@ -61,9 +89,11 @@ export const NetworkProvider: React.FC<{ children: ReactNode }> = ({
 
         // Load selected network
         if (result.selectedNetwork) {
-          const allNetworks = [...NETWORKS, ...(result.customNetworks || [])];
+          const allNetworks = [...NETWORKS, ...uniqueCustomNetworks];
           const found = allNetworks.find(
-            (n) => n.id === result.selectedNetwork.id
+            (n) =>
+              n.id === result.selectedNetwork.id ||
+              n.chainId === result.selectedNetwork.chainId
           );
           if (found) {
             setSelectedNetwork(found);

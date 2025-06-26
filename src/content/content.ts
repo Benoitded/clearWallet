@@ -64,8 +64,22 @@ window.addEventListener("message", async (event) => {
 
   const { type, data, id } = event.data;
 
-  // Handle requests that need to go to background script (but not responses)
-  if (type && type.startsWith("CLEARWALLET_") && !type.includes("_RESPONSE")) {
+  // List of message types that should NOT be forwarded to background
+  // These are typically notification messages from background to page
+  const notificationTypes = [
+    "CLEARWALLET_CHAIN_CHANGED",
+    "CLEARWALLET_ACCOUNT_CHANGED",
+    "CLEARWALLET_CONNECTION_SUCCESS",
+    "CLEARWALLET_WALLET_DISCONNECTED",
+  ];
+
+  // Handle requests that need to go to background script (but not responses or notifications)
+  if (
+    type &&
+    type.startsWith("CLEARWALLET_") &&
+    !type.includes("_RESPONSE") &&
+    !notificationTypes.includes(type)
+  ) {
     try {
       console.log("ClearWallet: Forwarding message to background:", type);
 

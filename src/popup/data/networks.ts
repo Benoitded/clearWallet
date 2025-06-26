@@ -31,6 +31,20 @@ export const NETWORKS: Network[] = [
       "https://corzzzxuybbykevxkokz.supabase.co/storage/v1/object/public/tokens/ETH.png",
   },
   {
+    id: "base",
+    name: "Base",
+    chainId: 8453,
+    blockExplorer: "https://basescan.org",
+    rpc: [
+      { name: "Llamarpc", url: "https://base.llamarpc.com" },
+      { name: "PublicNode", url: "wss://base-rpc.publicnode.com" },
+      { name: "Nodies", url: "https://base-pokt.nodies.app" },
+    ],
+    isTestnet: false,
+    image:
+      "https://corzzzxuybbykevxkokz.supabase.co/storage/v1/object/public/tokens/ETH.png",
+  },
+  {
     id: "holesky",
     name: "Holesky Testnet",
     chainId: 17000,
@@ -67,3 +81,54 @@ export const NETWORKS: Network[] = [
       "https://corzzzxuybbykevxkokz.supabase.co/storage/v1/object/public/tokens/ETH.png",
   },
 ];
+
+// Utility functions for network management
+export const NetworkUtils = {
+  /**
+   * Find a network by chainId
+   */
+  findByChainId: (
+    chainId: number,
+    customNetworks: Network[] = []
+  ): Network | undefined => {
+    const allNetworks = [...NETWORKS, ...customNetworks];
+    return allNetworks.find((network) => network.chainId === chainId);
+  },
+
+  /**
+   * Get all built-in chain IDs
+   */
+  getBuiltInChainIds: (): number[] => {
+    return NETWORKS.map((network) => network.chainId);
+  },
+
+  /**
+   * Check if a chainId is a built-in network
+   */
+  isBuiltInNetwork: (chainId: number): boolean => {
+    return NETWORKS.some((network) => network.chainId === chainId);
+  },
+
+  /**
+   * Get default RPC for a network
+   */
+  getDefaultRpc: (network: Network): RpcEndpoint => {
+    return network.rpc[0];
+  },
+
+  /**
+   * Format chainId to hex string
+   */
+  chainIdToHex: (chainId: number): string => {
+    return `0x${chainId.toString(16)}`;
+  },
+
+  /**
+   * Parse chainId from hex or decimal string
+   */
+  parseChainId: (chainId: string): number => {
+    return chainId.startsWith("0x")
+      ? parseInt(chainId, 16)
+      : parseInt(chainId, 10);
+  },
+};
